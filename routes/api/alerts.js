@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+const elasticsearch = require ('../../models/elasticsearch')
 // Middleware that is getting called on all other methosts and retursn HTTP 405
 const methodNotAllowed = (req, res, next) => res.status(405).set('Content-Type', 'application/json').send(`{ 'success': false, 'explanation': 'method_not_allowed' }`);
 
@@ -21,15 +22,13 @@ router.post('/', (req, res) => {
     }
     // Go to ES and check if exists
 
-
     if (test.some (test => test.alertName === req.body.alertName)){
+        elasticsearch.ping()
         res.status(400).set('Content-Type', 'application/json').send(`{ 'success': false, 'explanation': 'alert_structure_exists' }`);
-    }
-    
-
-    
-    res.status(200).set('Content-Type', 'application/json').send(`{ 'success': true, explanation': 'alert_definitoon_saved' }`);
-
+    } else {
+        elasticsearch.ping()
+        res.status(200).set('Content-Type', 'application/json').send(`{ 'success': true, explanation': 'alert_definitoon_saved' }`);
+    }     
 });
 
 router.all('/', methodNotAllowed)
